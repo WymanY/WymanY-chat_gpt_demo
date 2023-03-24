@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -43,6 +44,10 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<Message> _messages = [];
 
   Future<String> getBotResponse(String message, BuildContext context) async {
+    // read ApiToken from config.yaml
+     final config = await rootBundle.loadString('config.yaml');
+    final configMap = loadYaml(config);
+    
     var url = Uri.parse('https://api.openai.com/v1/chat/completions');
     var response = await http.post(
       url,
@@ -50,7 +55,7 @@ class _ChatScreenState extends State<ChatScreen> {
         'Content-Type': 'application/json;charset=UTF-8',
         "Accept": "application/json; charset=utf-8",
         'Authorization':
-            'Bearer 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',
+            'Bearer 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',
       },
       body: jsonEncode({
         'model': 'gpt-3.5-turbo',
