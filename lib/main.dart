@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:yaml/yaml.dart';
+
 void main() => runApp(const ChatApp());
 
 class ChatApp extends StatelessWidget {
@@ -44,18 +46,19 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<Message> _messages = [];
 
   Future<String> getBotResponse(String message, BuildContext context) async {
-    // read ApiToken from config.yaml
-     final config = await rootBundle.loadString('config.yaml');
+    // read ApiToken from config.yaml in lib directory
+    final config = await rootBundle.loadString('lib/config/config.yaml');
     final configMap = loadYaml(config);
-    
+    final apiToken = configMap["ApiToken"];
+    debugPrint('apiToken: ${apiToken}');
+
     var url = Uri.parse('https://api.openai.com/v1/chat/completions');
     var response = await http.post(
       url,
       headers: {
         'Content-Type': 'application/json;charset=UTF-8',
         "Accept": "application/json; charset=utf-8",
-        'Authorization':
-            'Bearer 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',
+        'Authorization': 'Bearer $apiToken',
       },
       body: jsonEncode({
         'model': 'gpt-3.5-turbo',

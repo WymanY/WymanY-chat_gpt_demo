@@ -31,7 +31,7 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
-/lib/config.yaml
+/lib/config/config.yaml
 
 # Symbolication related
 app.*.symbols
