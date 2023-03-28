@@ -1,11 +1,13 @@
+import 'package:chat_gpt_demo/config/config.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:yaml/yaml.dart';
-
-void main() => runApp(const ChatApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await ConfigManager.init();
+  return runApp(const ChatApp());
+}
 
 class ChatApp extends StatelessWidget {
   const ChatApp({super.key});
@@ -46,10 +48,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<Message> _messages = [];
 
   Future<String> getBotResponse(String message, BuildContext context) async {
-    // read ApiToken from config.yaml in lib directory
-    final config = await rootBundle.loadString('lib/config/config.yaml');
-    final configMap = loadYaml(config);
-    final apiToken = configMap["ApiToken"];
+    final apiToken = ConfigManager.instance.apiToken;
     debugPrint('apiToken: ${apiToken}');
 
     var url = Uri.parse('https://api.openai.com/v1/chat/completions');
