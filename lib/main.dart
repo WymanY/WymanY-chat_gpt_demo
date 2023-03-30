@@ -146,6 +146,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: Padding(
                   padding: const EdgeInsets.only(left: 8.0),
                   child: TextField(
+                    minLines: 1,
+                    maxLines: 5,
                     controller: _controller,
                     decoration: const InputDecoration(
                       hintText: 'Enter a message...',
