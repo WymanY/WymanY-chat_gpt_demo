@@ -84,6 +84,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _sendMessage(String message, BuildContext ctx) async {
+    if (message.isEmpty) return;
     _controller.clear();
     setState(() {
       _messages.add(Message('user', DateTime.now(), message));
