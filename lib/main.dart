@@ -143,12 +143,15 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Row(
             children: [
               Expanded(
-                child: TextField(
-                  controller: _controller,
-                  decoration: const InputDecoration(
-                    hintText: 'Enter a message...',
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: TextField(
+                    controller: _controller,
+                    decoration: const InputDecoration(
+                      hintText: 'Enter a message...',
+                    ),
+                    onSubmitted: (String value) => _sendMessage(value, context),
                   ),
-                  onSubmitted: (String value) => _sendMessage(value, context),
                 ),
               ),
               IconButton(
