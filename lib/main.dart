@@ -18,7 +18,7 @@ class ChatApp extends StatelessWidget {
       title: 'Chat Bot',
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Chat Bot'),
+          title: const Text('知学伴'),
         ),
         body: const ChatScreen(),
       ),
@@ -117,10 +117,12 @@ class _ChatScreenState extends State<ChatScreen> {
     return Column(
       children: [
         Expanded(
-          child: ListView.builder(
+          // 添加一个 separate line for ListView
+          child: ListView.separated(
             itemCount: _messages.length,
             itemBuilder: (BuildContext context, int index) {
-              // show an avatar for the user and the bot Use Icons.person for the user and Icons.android for the bot
+              // show an avatar for the user and the bot
+              // Use Icons.person for the user and Icons.android for the bot
               return ListTile(
                 leading: CircleAvatar(
                   backgroundColor: _messages[index].author == 'user'
@@ -137,6 +139,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 subtitle: Text(_formatTimestamp(_messages[index].timestamp)),
               );
             },
+            separatorBuilder: (BuildContext context, int index) {
+              return Divider(
+                // when index odd is green color, even is blue color
+                color: index % 2 == 0 ? Colors.blue : Colors.green,
+                thickness: 1.0, // 分隔线的厚度
+                height: 1.0, // 分隔线的高度
+              );
+            },
           ),
         ),
         const Divider(),
@@ -151,7 +161,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     maxLines: 5,
                     controller: _controller,
                     decoration: const InputDecoration(
-                      hintText: 'Enter a message...',
+                      hintText: '请输入您的疑问?',
                     ),
                     onSubmitted: (String value) => _sendMessage(value, context),
                   ),
