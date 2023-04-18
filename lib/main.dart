@@ -1,3 +1,4 @@
+import 'package:bruno/bruno.dart';
 import 'package:chat_gpt_demo/config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -15,14 +16,43 @@ class ChatApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Chat Bot',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('知学伴'),
-        ),
-        body: const ChatScreen(),
+        home: Scaffold(
+      appBar: AppBar(
+        title: const Text('知学伴'),
       ),
-    );
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            DrawerHeader(
+              child: Text('知学伴角色'),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+            ),
+            ListTile(
+              title: Text('心灵导师'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text('考研规划师'),
+              onTap: () {
+                // Update the state of the app
+                // ...
+                // Then close the drawer
+                Navigator.pop(context);
+              },
+            ),
+          ],
+          // 在这里添加抽屉中的小部件
+        ),
+      ),
+      body: const ChatScreen(),
+    ));
   }
 }
 
@@ -46,6 +76,12 @@ class _ChatScreenState extends State<ChatScreen> {
   final _controller = TextEditingController();
 
   final List<Message> _messages = [];
+  @override
+  void initState() {
+    super.initState();
+    _messages.add(
+        Message('bot', DateTime.now(), '您好,我是你的学习伴侣,接下来我会跟你简单的沟通几个问题,感谢你的配合.'));
+  }
 
   Future<String> getBotResponse(String message, BuildContext context) async {
     final apiToken = ConfigManager.instance.apiToken;
@@ -123,20 +159,51 @@ class _ChatScreenState extends State<ChatScreen> {
             itemBuilder: (BuildContext context, int index) {
               // show an avatar for the user and the bot
               // Use Icons.person for the user and Icons.android for the bot
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: _messages[index].author == 'user'
-                      ? Colors.blue
-                      : Colors.green,
-                  child: Icon(
-                    _messages[index].author == 'user'
-                        ? Icons.person
-                        : Icons.android,
-                    color: Colors.white,
+              var tags2 = [
+                '如何考研',
+                '如何做英语专项练习',
+                '还有三个月怎么考研',
+                '我的现在成绩怎么样',
+                '我要考研了,好担心，应该咋做啊',
+              ];
+              return Column(
+                children: [
+                  ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: _messages[index].author == 'user'
+                          ? Colors.blue
+                          : Colors.green,
+                      child: Icon(
+                        _messages[index].author == 'user'
+                            ? Icons.person
+                            : Icons.android,
+                        color: Colors.white,
+                      ),
+                    ),
+                    title: SelectableText(_messages[index].content),
+                    subtitle:
+                        Text(_formatTimestamp(_messages[index].timestamp)),
                   ),
-                ),
-                title: SelectableText(_messages[index].content),
-                subtitle: Text(_formatTimestamp(_messages[index].timestamp)),
+                  // when message is from the bot, show the buttons
+                  if (_messages[index].author == 'bot')
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Builder(builder: (context) {
+                        return BrnSelectTag(
+                            tags: tags2,
+                            isSingleSelect: true,
+                            fixWidthMode: false,
+                            spacing: 8.0,
+                            themeData:
+                                //hex color 9c88ff
+                                BrnTagConfig(
+                                    tagBackgroundColor: Color(0xFF9c88ff)),
+                            onSelect: (selectedIndexes) {
+                              _sendMessage(tags2[selectedIndexes[0]], context);
+                            });
+                      }),
+                    )
+                ],
               );
             },
             separatorBuilder: (BuildContext context, int index) {
