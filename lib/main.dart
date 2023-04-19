@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:bruno/bruno.dart';
 import 'package:chat_gpt_demo/model/message.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -31,18 +32,6 @@ class _ChatAppState extends State<ChatApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
         home: Scaffold(
-      appBar: AppBar(
-        title: const Text('知学伴'),
-        leading: Builder(builder: (context) {
-          return IconButton(
-            icon: const Icon(Icons.chat_bubble), // 替换为Settings图标
-            onPressed: () {
-              // do something
-              Scaffold.of(context).openDrawer();
-            },
-          );
-        }),
-      ),
       drawer: Builder(builder: (context) {
         return Drawer(
           child: ListView(
@@ -72,6 +61,17 @@ class _ChatAppState extends State<ChatApp> {
         );
       }),
       body: const ChatScreen(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.read<ChatModel>().setChatScene(ChatScene.breakIce);
+        },
+        backgroundColor: Colors.white,
+        clipBehavior: Clip.hardEdge,
+        child: Image.asset(
+          'assets/images/loading.webp',
+          fit: BoxFit.cover,
+        ),
+      ),
     ));
   }
 }
@@ -192,7 +192,7 @@ class _ChatScreenState extends State<ChatScreen> {
       Container(
           width: double.infinity,
           height: double.infinity,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
               image: AssetImage('assets/images/bg.png'),
               fit: BoxFit.cover,
@@ -200,6 +200,34 @@ class _ChatScreenState extends State<ChatScreen> {
           )),
       Column(
         children: [
+          SafeArea(
+            child: SizedBox(
+              height: 50,
+              width: double.infinity,
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 20,
+                    child: GestureDetector(
+                      child: SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: Image.asset('assets/images/head_session.png'),
+                      ),
+                      onTap: () {
+                        Scaffold.of(context).openDrawer();
+                      },
+                    ),
+                  ),
+                  Center(
+                    child: CircleAvatar(
+                      child: Image.asset('assets/images/avatar.png'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           Expanded(
             // 添加一个 separate line for ListView
             child: ListView.separated(
