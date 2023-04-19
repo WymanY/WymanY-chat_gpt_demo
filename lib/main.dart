@@ -70,7 +70,7 @@ class Message {
   final String author;
   final DateTime timestamp;
   final String content;
-  final List<String> recommendTags;
+  List<String> recommendTags;
 
   Message(this.author, this.timestamp, this.content,
       [this.recommendTags = const []]);
@@ -136,15 +136,15 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {
       _messages.add(Message('user', DateTime.now(), message));
     });
-
     String botMessage = await getBotResponse(message, ctx);
-    final recommendPrompt = "根据下面这段话给出三个推荐关键词: $botMessage";
+    final recommendPrompt =
+        "根据下面这段话给出三个推荐关键词,要求格式如下1.xxx,2.xxxx,3.xxxx: $botMessage";
     // ignore: use_build_context_synchronously
-    final String recommondMessage = await getBotResponse(recommendPrompt, ctx);
-    print(recommondMessage);
-
+    final String recommendMessage = await getBotResponse(recommendPrompt, ctx);
+    var tags = recommendMessage.split('\n').map((e) => "如何 $e").toList();
+    print(recommendMessage);
     setState(() {
-      _messages.add(Message('bot', DateTime.now(), botMessage.trim()));
+      _messages.add(Message('bot', DateTime.now(), botMessage.trim(), tags));
     });
   }
 
@@ -174,13 +174,6 @@ class _ChatScreenState extends State<ChatScreen> {
             itemBuilder: (BuildContext context, int index) {
               // show an avatar for the user and the bot
               // Use Icons.person for the user and Icons.android for the bot
-              var tags2 = [
-                '如何考研',
-                '如何做英语专项练习',
-                '还有三个月怎么考研',
-                '我的现在成绩怎么样',
-                '我要考研了,好担心，应该咋做啊',
-              ];
               return Column(
                 children: [
                   ListTile(
@@ -200,14 +193,15 @@ class _ChatScreenState extends State<ChatScreen> {
                         Text(_formatTimestamp(_messages[index].timestamp)),
                   ),
                   // when message is from the bot, show the buttons
-                  if (_messages[index].author == 'bot')
+                  if (_messages[index].author == 'bot' &&
+                      _messages[index].recommendTags.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Builder(builder: (context) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
                           child: BrnSelectTag(
-                              tags: tags2,
+                              tags: _messages[index].recommendTags,
                               isSingleSelect: true,
                               fixWidthMode: false,
                               spacing: 8.0,
@@ -223,7 +217,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                       tagRadius: 8.0),
                               onSelect: (selectedIndexes) {
                                 _sendMessage(
-                                    tags2[selectedIndexes[0]], context);
+                                    _messages[index]
+                                        .recommendTags[selectedIndexes[0]],
+                                    context);
                               }),
                         );
                       }),
