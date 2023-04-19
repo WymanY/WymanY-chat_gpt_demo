@@ -175,8 +175,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final chatModel = Provider.of<ChatModel>(context);
-    print("chatModel.chatScene: ${chatModel.chatScene}");
     return Stack(children: [
       Container(
           width: double.infinity,
@@ -219,103 +217,108 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Expanded(
             // 添加一个 separate line for ListView
-            child: ListView.separated(
-              itemCount: chatModel.messages.length,
-              itemBuilder: (BuildContext context, int index) {
-                // show an avatar for the user and the bot
-                // Use Icons.person for the user and Icons.android for the bot
-                return Column(
-                  children: [
-                    ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor:
+            child: Consumer<ChatModel>(builder: (context, chatModel, child) {
+              return ListView.separated(
+                itemCount: chatModel.messages.length,
+                itemBuilder: (BuildContext context, int index) {
+                  // show an avatar for the user and the bot
+                  // Use Icons.person for the user and Icons.android for the bot
+                  return Column(
+                    children: [
+                      ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor:
+                              chatModel.messages[index].author == 'user'
+                                  ? Colors.blue
+                                  : Colors.green,
+                          child: Icon(
                             chatModel.messages[index].author == 'user'
-                                ? Colors.blue
-                                : Colors.green,
-                        child: Icon(
-                          chatModel.messages[index].author == 'user'
-                              ? Icons.person
-                              : Icons.android,
-                          color: Colors.white,
+                                ? Icons.person
+                                : Icons.android,
+                            color: Colors.white,
+                          ),
                         ),
+                        title: BrnBubbleText(
+                          text: chatModel.messages[index].content,
+                        ),
+                        subtitle: Text(_formatTimestamp(
+                            chatModel.messages[index].timestamp)),
                       ),
-                      title: BrnBubbleText(
-                        text: chatModel.messages[index].content,
-                      ),
-                      subtitle: Text(_formatTimestamp(
-                          chatModel.messages[index].timestamp)),
-                    ),
-                    // when message is from the bot, show the buttons
-                    if (chatModel.messages[index].author == 'bot' &&
-                        chatModel.messages[index].recommendTags.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Builder(builder: (context) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: BrnSelectTag(
-                                tags: chatModel.messages[index].recommendTags,
-                                isSingleSelect: true,
-                                fixWidthMode: false,
-                                spacing: 8.0,
-                                themeData:
-                                    //hex color 9c88ff
-                                    BrnTagConfig(
-                                        tagBackgroundColor:
-                                            const Color(0xFF9c88ff),
-                                        tagTextStyle: BrnTextStyle(
-                                            color: const Color(0xFFFFF100),
-                                            fontSize: 14.0,
-                                            fontWeight: FontWeight.w500),
-                                        tagRadius: 8.0),
-                                onSelect: (selectedIndexes) {
-                                  _sendMessage(
-                                      chatModel.messages[index]
-                                          .recommendTags[selectedIndexes[0]],
-                                      context);
-                                }),
-                          );
-                        }),
-                      )
-                  ],
-                );
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                return Divider(
-                  // when index odd is green color, even is blue color
-                  color: index % 2 == 0 ? Colors.blue : Colors.green,
-                  thickness: 1.0, // 分隔线的厚度
-                  height: 1.0, // 分隔线的高度
-                );
-              },
-            ),
+                      // when message is from the bot, show the buttons
+                      if (chatModel.messages[index].author == 'bot' &&
+                          chatModel.messages[index].recommendTags.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Builder(builder: (context) {
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: BrnSelectTag(
+                                  tags: chatModel.messages[index].recommendTags,
+                                  isSingleSelect: true,
+                                  fixWidthMode: false,
+                                  spacing: 8.0,
+                                  themeData:
+                                      //hex color 9c88ff
+                                      BrnTagConfig(
+                                          tagBackgroundColor:
+                                              const Color(0xFF9c88ff),
+                                          tagTextStyle: BrnTextStyle(
+                                              color: const Color(0xFFFFF100),
+                                              fontSize: 14.0,
+                                              fontWeight: FontWeight.w500),
+                                          tagRadius: 8.0),
+                                  onSelect: (selectedIndexes) {
+                                    _sendMessage(
+                                        chatModel.messages[index]
+                                            .recommendTags[selectedIndexes[0]],
+                                        context);
+                                  }),
+                            );
+                          }),
+                        )
+                    ],
+                  );
+                },
+                separatorBuilder: (BuildContext context, int index) {
+                  return Divider(
+                    // when index odd is green color, even is blue color
+                    color: index % 2 == 0 ? Colors.blue : Colors.green,
+                    thickness: 1.0, // 分隔线的厚度
+                    height: 1.0, // 分隔线的高度
+                  );
+                },
+              );
+            }),
           ),
           const Divider(),
-          SafeArea(
-            child: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: TextField(
-                      minLines: 1,
-                      maxLines: 5,
-                      controller: _controller,
-                      decoration: const InputDecoration(
-                        hintText: '请输入您的疑问?',
+          Builder(builder: (context) {
+            print("底部的SafeArea 也被重建了？");
+            return SafeArea(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: TextField(
+                        minLines: 1,
+                        maxLines: 5,
+                        controller: _controller,
+                        decoration: const InputDecoration(
+                          hintText: '请输入您的疑问?',
+                        ),
+                        onSubmitted: (String value) =>
+                            _sendMessage(value, context),
                       ),
-                      onSubmitted: (String value) =>
-                          _sendMessage(value, context),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: () => _sendMessage(_controller.text, context),
-                ),
-              ],
-            ),
-          ),
+                  IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: () => _sendMessage(_controller.text, context),
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
       Positioned(
