@@ -19,6 +19,15 @@ class ChatApp extends StatelessWidget {
         home: Scaffold(
       appBar: AppBar(
         title: const Text('知学伴'),
+        leading: Builder(builder: (context) {
+          return IconButton(
+            icon: const Icon(Icons.chat_bubble), // 替换为Settings图标
+            onPressed: () {
+              // do something
+              Scaffold.of(context).openDrawer();
+            },
+          );
+        }),
       ),
       drawer: Drawer(
         child: ListView(
@@ -63,12 +72,8 @@ class Message {
   final String content;
   final List<String> recommendTags;
 
-  Message(
-    this.author,
-    this.timestamp,
-    this.content,
-    [this.recommendTags = const []]
-  );
+  Message(this.author, this.timestamp, this.content,
+      [this.recommendTags = const []]);
 }
 
 class ChatScreen extends StatefulWidget {
