@@ -86,7 +86,9 @@ D. 应付账款 15,000元，预付款 5,000元，存货 10,000元
     _chatScene = scene;
     switch (scene) {
       case ChatScene.Answer:
-        messages = [Message.fromBotMsg(answerMsgs[0])];
+        messages = [
+          Message.fromBotMsg(answerMsgs[0], ["A", "B", "C", "D"])
+        ];
         msgIndex = 1;
         break;
       case ChatScene.Learning:

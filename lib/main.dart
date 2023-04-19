@@ -142,14 +142,8 @@ class _ChatScreenState extends State<ChatScreen> {
         model.msgIndexIncrement();
         break;
     }
-    // final recommendPrompt =
-    //     "根据下面这段话给出三个推荐关键词,要求格式如下:1.xxx \n 2.xxxx \n 3.xxxx: $botMessage";
-    // // ignore: use_build_context_synchronously
-    // final String recommendMessage = await getBotResponse(recommendPrompt, ctx);
-    // var tags = recommendMessage.split('\n');
-
-    // print(recommendMessage);
-    model.addMsg(Message('bot', DateTime.now(), botMessage.trim()));
+    model.addMsg(Message(
+        'bot', DateTime.now(), botMessage.trim(), ["A", "B", "C", "D"]));
   }
 
   // convert the timestamp to a human readable format, eg."2 minutes ago"
