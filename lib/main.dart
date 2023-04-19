@@ -61,17 +61,6 @@ class _ChatAppState extends State<ChatApp> {
         );
       }),
       body: const ChatScreen(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.read<ChatModel>().setChatScene(ChatScene.breakIce);
-        },
-        backgroundColor: Colors.white,
-        clipBehavior: Clip.hardEdge,
-        child: Image.asset(
-          'assets/images/loading.webp',
-          fit: BoxFit.cover,
-        ),
-      ),
     ));
   }
 }
@@ -328,6 +317,18 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
         ],
+      ),
+      Positioned(
+        bottom: 60,
+        right: 40,
+        child: SizedBox(
+          width: 40,
+          height: 40,
+          child: Image.asset(
+            'assets/images/loading.webp',
+            fit: BoxFit.cover,
+          ),
+        ),
       ),
     ]);
   }
