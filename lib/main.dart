@@ -23,14 +23,14 @@ class ChatApp extends StatelessWidget {
       drawer: Drawer(
         child: ListView(
           children: [
-            DrawerHeader(
-              child: Text('知学伴角色'),
+            const DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
+              child: Text('知学伴角色'),
             ),
             ListTile(
-              title: Text('心灵导师'),
+              title: const Text('心灵导师'),
               onTap: () {
                 // Update the state of the app
                 // ...
@@ -39,7 +39,7 @@ class ChatApp extends StatelessWidget {
               },
             ),
             ListTile(
-              title: Text('考研规划师'),
+              title: const Text('考研规划师'),
               onTap: () {
                 // Update the state of the app
                 // ...
@@ -56,13 +56,19 @@ class ChatApp extends StatelessWidget {
   }
 }
 
-// write a [Message] class that has author, timestamp, and content fields
+// write a [Message] class that has author, timestamp, and content, nullable recommendTags fields
 class Message {
   final String author;
   final DateTime timestamp;
   final String content;
+  final List<String> recommendTags;
 
-  Message(this.author, this.timestamp, this.content);
+  Message(
+    this.author,
+    this.timestamp,
+    this.content,
+    [this.recommendTags = const []]
+  );
 }
 
 class ChatScreen extends StatefulWidget {
@@ -79,13 +85,13 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-    _messages.add(
-        Message('bot', DateTime.now(), '您好,我是你的学习伴侣,接下来我会跟你简单的沟通几个问题,感谢你的配合.'));
+    _messages.add(Message(
+        'bot', DateTime.now(), '您好,我是你的学习伴侣,接下来我会跟你简单的沟通几个问题,感谢你的配合.', []));
   }
 
   Future<String> getBotResponse(String message, BuildContext context) async {
     final apiToken = ConfigManager.instance.apiToken;
-    debugPrint('apiToken: ${apiToken}');
+    debugPrint('apiToken: $apiToken');
 
     var url = Uri.parse('https://api.openai.com/v1/chat/completions');
     var response = await http.post(
@@ -98,7 +104,7 @@ class _ChatScreenState extends State<ChatScreen> {
       body: jsonEncode({
         'model': 'gpt-3.5-turbo',
         'messages': [
-          {'role': 'user', 'content': message}
+          {'role': 'assistant', 'content': message}
         ],
       }),
     );
@@ -127,6 +133,10 @@ class _ChatScreenState extends State<ChatScreen> {
     });
 
     String botMessage = await getBotResponse(message, ctx);
+    final recommendPrompt = "根据下面这段话给出三个推荐关键词: $botMessage";
+    // ignore: use_build_context_synchronously
+    final String recommondMessage = await getBotResponse(recommendPrompt, ctx);
+    print(recommondMessage);
 
     setState(() {
       _messages.add(Message('bot', DateTime.now(), botMessage.trim()));
@@ -189,18 +199,28 @@ class _ChatScreenState extends State<ChatScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Builder(builder: (context) {
-                        return BrnSelectTag(
-                            tags: tags2,
-                            isSingleSelect: true,
-                            fixWidthMode: false,
-                            spacing: 8.0,
-                            themeData:
-                                //hex color 9c88ff
-                                BrnTagConfig(
-                                    tagBackgroundColor: Color(0xFF9c88ff)),
-                            onSelect: (selectedIndexes) {
-                              _sendMessage(tags2[selectedIndexes[0]], context);
-                            });
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: BrnSelectTag(
+                              tags: tags2,
+                              isSingleSelect: true,
+                              fixWidthMode: false,
+                              spacing: 8.0,
+                              themeData:
+                                  //hex color 9c88ff
+                                  BrnTagConfig(
+                                      tagBackgroundColor:
+                                          const Color(0xFF9c88ff),
+                                      tagTextStyle: BrnTextStyle(
+                                          color: const Color(0xFFFFF100),
+                                          fontSize: 14.0,
+                                          fontWeight: FontWeight.w500),
+                                      tagRadius: 8.0),
+                              onSelect: (selectedIndexes) {
+                                _sendMessage(
+                                    tags2[selectedIndexes[0]], context);
+                              }),
+                        );
                       }),
                     )
                 ],
