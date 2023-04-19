@@ -1,18 +1,30 @@
 import 'package:bruno/bruno.dart';
 import 'package:chat_gpt_demo/config/config.dart';
+import 'package:chat_gpt_demo/model/ChatState.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:provider/provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ConfigManager.init();
-  return runApp(const ChatApp());
+  return runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => ChatModel()),
+  ], child: ChatApp()));
 }
 
-class ChatApp extends StatelessWidget {
-  const ChatApp({super.key});
+//enum Chat Scene
 
+class ChatApp extends StatefulWidget {
+  ChatApp({super.key});
+  @override
+  State<ChatApp> createState() => _ChatAppState();
+}
+
+class _ChatAppState extends State<ChatApp> {
+  ChatScene _chatScene = ChatScene.breakIce;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,37 +41,34 @@ class ChatApp extends StatelessWidget {
           );
         }),
       ),
-      drawer: Drawer(
-        child: ListView(
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
+      drawer: Builder(builder: (context) {
+        return Drawer(
+          child: ListView(
+            children: [
+              ListTile(
+                title: const Text('答题'),
+                onTap: () {
+                  // Update the state of the app
+                  // Then close the drawer
+                  context.read<ChatModel>().setChatScene(ChatScene.Answer);
+                  Navigator.pop(context);
+                },
               ),
-              child: Text('知学伴角色'),
-            ),
-            ListTile(
-              title: const Text('心灵导师'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: const Text('考研规划师'),
-              onTap: () {
-                // Update the state of the app
-                // ...
-                // Then close the drawer
-                Navigator.pop(context);
-              },
-            ),
-          ],
-          // 在这里添加抽屉中的小部件
-        ),
-      ),
+              ListTile(
+                title: const Text('学情分析'),
+                onTap: () {
+                  // Update the state of the app
+                  // ...
+                  // Then close the drawer
+                  context.read<ChatModel>().setChatScene(ChatScene.Learning);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+            // 在这里添加抽屉中的小部件
+          ),
+        );
+      }),
       body: const ChatScreen(),
     ));
   }
@@ -85,13 +94,11 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _controller = TextEditingController();
-
   final List<Message> _messages = [];
+  int msgIndex = 0;
   @override
   void initState() {
     super.initState();
-    _messages.add(Message(
-        'bot', DateTime.now(), '您好,我是你的学习伴侣,接下来我会跟你简单的沟通几个问题,感谢你的配合.', []));
   }
 
   Future<String> getBotResponse(String message, BuildContext context) async {
@@ -130,21 +137,35 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  void _sendMessage(String message, BuildContext ctx) async {
+  void _sendMessage(String message, BuildContext ctx) {
     if (message.isEmpty) return;
     _controller.clear();
     setState(() {
       _messages.add(Message('user', DateTime.now(), message));
     });
-    String botMessage = await getBotResponse(message, ctx);
-    final recommendPrompt =
-        "根据下面这段话给出三个推荐关键词,要求格式如下1.xxx,2.xxxx,3.xxxx: $botMessage";
-    // ignore: use_build_context_synchronously
-    final String recommendMessage = await getBotResponse(recommendPrompt, ctx);
-    var tags = recommendMessage.split('\n').map((e) => "如何 $e").toList();
-    print(recommendMessage);
+    // String botMessage = await getBotResponse(message, ctx);
+    ChatModel model = context.read<ChatModel>();
+    String botMessage = '';
+    final chatScene = model.chatScene;
+    switch (chatScene) {
+      case ChatScene.breakIce:
+        break;
+      case ChatScene.Answer:
+        botMessage = model.AnswerMsg[msgIndex++];
+        break;
+      case ChatScene.Learning:
+        botMessage = model.LearnMsg[msgIndex++];
+        break;
+    }
+    // final recommendPrompt =
+    //     "根据下面这段话给出三个推荐关键词,要求格式如下:1.xxx \n 2.xxxx \n 3.xxxx: $botMessage";
+    // // ignore: use_build_context_synchronously
+    // final String recommendMessage = await getBotResponse(recommendPrompt, ctx);
+    // var tags = recommendMessage.split('\n');
+
+    // print(recommendMessage);
     setState(() {
-      _messages.add(Message('bot', DateTime.now(), botMessage.trim(), tags));
+      _messages.add(Message('bot', DateTime.now(), botMessage.trim(), []));
     });
   }
 
@@ -165,6 +186,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final chatModel = Provider.of<ChatModel>(context);
+    print("chatModel.chatScene: ${chatModel.chatScene}");
     return Column(
       children: [
         Expanded(
@@ -188,7 +211,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         color: Colors.white,
                       ),
                     ),
-                    title: SelectableText(_messages[index].content),
+                    title: BrnBubbleText(
+                      text: _messages[index].content,
+                    ),
                     subtitle:
                         Text(_formatTimestamp(_messages[index].timestamp)),
                   ),
