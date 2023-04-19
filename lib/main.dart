@@ -134,11 +134,11 @@ class _ChatScreenState extends State<ChatScreen> {
       case ChatScene.breakIce:
         break;
       case ChatScene.Answer:
-        botMessage = model.AnswerMsg[model.msgIndex];
+        botMessage = model.answerMsgs[model.msgIndex];
         model.msgIndexIncrement();
         break;
       case ChatScene.Learning:
-        botMessage = model.LearnMsg[model.msgIndex];
+        botMessage = model.learnMsgs[model.msgIndex];
         model.msgIndexIncrement();
         break;
     }

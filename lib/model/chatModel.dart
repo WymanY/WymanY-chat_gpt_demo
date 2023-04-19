@@ -13,7 +13,7 @@ class ChatModel extends ChangeNotifier {
   List<String> iceBreakMsgs = [
     '你好，吕笑晨同学，很高兴见到你！我是你们的辅导老师。祝贺你们进入了新的学年！我非常期待和你们一起度过这段时间。如果你有任何问题或需要帮助，请随时来找我，我愿意尽我所能去帮助你。'
   ];
-  final List<String> LearnMsg = [
+  final List<String> learnMsgs = [
     '''1.当前学习等级是中级会计职称，无法满足职级晋升工龄要求。
 2.针对时间零散程度，建议修正学习计划，分为四个阶段：
 基础阶段：建议学习时间为2个月，选择教材为《会计基础》、《财务管理基础》、《经济法基础》等，重点学习会计基础知识和财务管理基础知识。
@@ -28,7 +28,7 @@ class ChatModel extends ChangeNotifier {
 5.根据往年的考试资料，建议报名时间为每年的3月份，考试准备时间为4个月，考试时间为每年的7月份。需要提前做好考试报名和准备工作，合理安排时间，做好考试准备，争取取得好成绩。
 ''',
   ];
-  final List<String> AnswerMsg = [
+  final List<String> answerMsgs = [
     '''
 公司在5月1日向供应商订购了一批货物，总金额为10,000元，其中5,000元是应在6月1日支付的应付款项，另外5,000元是预付款。公司在5月31日收到了货物，并将其全部入库。请问，在公司5月31日的资产负债表中，应如何记录这笔交易？（）
 A. 应付款项 5,000元，预付款 5,000元，应付账款 10,000元
@@ -86,12 +86,12 @@ D. 应付账款 15,000元，预付款 5,000元，存货 10,000元
     _chatScene = scene;
     switch (scene) {
       case ChatScene.Answer:
-        messages = [Message.fromBotMsg(AnswerMsg[0])];
-        msgIndex = 0;
+        messages = [Message.fromBotMsg(answerMsgs[0])];
+        msgIndex = 1;
         break;
       case ChatScene.Learning:
-        messages = [Message.fromBotMsg(LearnMsg[0])];
-        msgIndex = 0;
+        messages = [Message.fromBotMsg(learnMsgs[0])];
+        msgIndex = 1;
         break;
       case ChatScene.breakIce:
         msgIndex = 0;
