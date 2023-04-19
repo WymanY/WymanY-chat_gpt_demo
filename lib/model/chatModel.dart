@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 
+import 'message.dart';
+
 enum ChatScene { Answer, Learning, breakIce }
 
 class ChatModel extends ChangeNotifier {
   ChatScene _chatScene = ChatScene.breakIce;
-
-  List<String> curMsgs = [
+  List<Message> messages = [
+    Message('Bot', DateTime.now(),
+        "你好，吕笑晨同学，很高兴见到你！我是你们的辅导老师。祝贺你们进入了新的学年！我非常期待和你们一起度过这段时间。如果你有任何问题或需要帮助，请随时来找我，我愿意尽我所能去帮助你。")
+  ];
+  List<String> iceBreakMsgs = [
     '你好，吕笑晨同学，很高兴见到你！我是你们的辅导老师。祝贺你们进入了新的学年！我非常期待和你们一起度过这段时间。如果你有任何问题或需要帮助，请随时来找我，我愿意尽我所能去帮助你。'
   ];
   final List<String> LearnMsg = [
@@ -24,6 +29,20 @@ class ChatModel extends ChangeNotifier {
 ''',
   ];
   final List<String> AnswerMsg = [
+    '''
+公司在5月1日向供应商订购了一批货物，总金额为10,000元，其中5,000元是应在6月1日支付的应付款项，另外5,000元是预付款。公司在5月31日收到了货物，并将其全部入库。请问，在公司5月31日的资产负债表中，应如何记录这笔交易？（）
+A. 应付款项 5,000元，预付款 5,000元，应付账款 10,000元
+B. 应付款项 5,000元，预付款 5,000元，存货 10,000元
+C. 应付账款 10,000元，预付款 5,000元，存货 5,000元
+D. 应付账款 10,000元，预付款 5,000元，存货 10,000元
+涉及到的知识点：会计基础知识-资产负债表
+思考步骤：
+1. 分析交易内容：公司在5月1日向供应商订购了货物，总金额为10,000元，其中5,000元是应在6月1日支付的应付款项，另外5,000元是预付款。公司在5月31日收到了货物，并将其全部入库。
+2. 判断交易对公司资产负债表的影响：此笔交易将对公司的应付款项、预付款和存货等账户产生影响。
+3. 根据交易内容以及资产负债表的基本原则进行分析，判断应该如何记录这笔交易。
+解题思路：根据分析，此笔交易应该分别记录应付款项 5,000元，预付款 5,000元和存货 5,000元。因为货物在5月31日全部入库，因此应记录存货账户，而应付款项只有5,000元是应在6月1日支付的，因此应该只记录5,000元，而预付款5,000元在5月31日已经支付了，应该在当期记录
+请问您选择的答案是什么呢？
+''',
     '''
 恭喜你，答对了！这道题的解答思路就是要明确这笔交易中涉及到的会计科目，将其归类到资产、负债或者所有者权益这三个大类中，最后根据会计准则和会计处理方法确定在资产负债表中的表现形式。
 
@@ -60,22 +79,34 @@ D. 应付账款 15,000元，预付款 5,000元，存货 10,000元
 如果你还有其他问题或者需要进一步练习，请随时提出。
 ''',
   ];
-  List<String> currentMsgs = [];
+
   ChatScene get chatScene => _chatScene;
+  int msgIndex = 0;
   void setChatScene(ChatScene scene) {
     _chatScene = scene;
     switch (scene) {
       case ChatScene.Answer:
-        curMsgs = AnswerMsg;
+        messages = [Message.fromBotMsg(AnswerMsg[0])];
+        msgIndex = 0;
         break;
       case ChatScene.Learning:
-        curMsgs = LearnMsg;
+        messages = [Message.fromBotMsg(LearnMsg[0])];
+        msgIndex = 0;
         break;
       case ChatScene.breakIce:
-        // TODO: Handle this case.
+        msgIndex = 0;
         break;
     }
+    notifyListeners();
+  }
 
+  addMsg(Message msg) {
+    messages.add(msg);
+    notifyListeners();
+  }
+
+  void msgIndexIncrement() {
+    msgIndex++;
     notifyListeners();
   }
 }

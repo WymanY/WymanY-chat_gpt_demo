@@ -1,30 +1,32 @@
-import 'package:bruno/bruno.dart';
-import 'package:chat_gpt_demo/config/config.dart';
-import 'package:chat_gpt_demo/model/ChatState.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+import 'package:bruno/bruno.dart';
+import 'package:chat_gpt_demo/model/message.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+
+import 'package:chat_gpt_demo/config/config.dart';
+import 'package:chat_gpt_demo/model/chatModel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await ConfigManager.init();
   return runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => ChatModel()),
-  ], child: ChatApp()));
+  ], child: const ChatApp()));
 }
 
 //enum Chat Scene
 
 class ChatApp extends StatefulWidget {
-  ChatApp({super.key});
+  const ChatApp({super.key});
   @override
   State<ChatApp> createState() => _ChatAppState();
 }
 
 class _ChatAppState extends State<ChatApp> {
-  ChatScene _chatScene = ChatScene.breakIce;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -74,19 +76,10 @@ class _ChatAppState extends State<ChatApp> {
   }
 }
 
-// write a [Message] class that has author, timestamp, and content, nullable recommendTags fields
-class Message {
-  final String author;
-  final DateTime timestamp;
-  final String content;
-  List<String> recommendTags;
-
-  Message(this.author, this.timestamp, this.content,
-      [this.recommendTags = const []]);
-}
-
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({
+    Key? key,
+  }) : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -94,13 +87,6 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _controller = TextEditingController();
-  final List<Message> _messages = [];
-  int msgIndex = 0;
-  @override
-  void initState() {
-    super.initState();
-  }
-
   Future<String> getBotResponse(String message, BuildContext context) async {
     final apiToken = ConfigManager.instance.apiToken;
     debugPrint('apiToken: $apiToken');
@@ -140,21 +126,20 @@ class _ChatScreenState extends State<ChatScreen> {
   void _sendMessage(String message, BuildContext ctx) {
     if (message.isEmpty) return;
     _controller.clear();
-    setState(() {
-      _messages.add(Message('user', DateTime.now(), message));
-    });
-    // String botMessage = await getBotResponse(message, ctx);
     ChatModel model = context.read<ChatModel>();
+    model.addMsg(Message('user', DateTime.now(), message));
     String botMessage = '';
     final chatScene = model.chatScene;
     switch (chatScene) {
       case ChatScene.breakIce:
         break;
       case ChatScene.Answer:
-        botMessage = model.AnswerMsg[msgIndex++];
+        botMessage = model.AnswerMsg[model.msgIndex];
+        model.msgIndexIncrement();
         break;
       case ChatScene.Learning:
-        botMessage = model.LearnMsg[msgIndex++];
+        botMessage = model.LearnMsg[model.msgIndex];
+        model.msgIndexIncrement();
         break;
     }
     // final recommendPrompt =
@@ -164,9 +149,7 @@ class _ChatScreenState extends State<ChatScreen> {
     // var tags = recommendMessage.split('\n');
 
     // print(recommendMessage);
-    setState(() {
-      _messages.add(Message('bot', DateTime.now(), botMessage.trim(), []));
-    });
+    model.addMsg(Message('bot', DateTime.now(), botMessage.trim()));
   }
 
   // convert the timestamp to a human readable format, eg."2 minutes ago"
@@ -193,7 +176,7 @@ class _ChatScreenState extends State<ChatScreen> {
         Expanded(
           // 添加一个 separate line for ListView
           child: ListView.separated(
-            itemCount: _messages.length,
+            itemCount: chatModel.messages.length,
             itemBuilder: (BuildContext context, int index) {
               // show an avatar for the user and the bot
               // Use Icons.person for the user and Icons.android for the bot
@@ -201,32 +184,33 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: _messages[index].author == 'user'
-                          ? Colors.blue
-                          : Colors.green,
+                      backgroundColor:
+                          chatModel.messages[index].author == 'user'
+                              ? Colors.blue
+                              : Colors.green,
                       child: Icon(
-                        _messages[index].author == 'user'
+                        chatModel.messages[index].author == 'user'
                             ? Icons.person
                             : Icons.android,
                         color: Colors.white,
                       ),
                     ),
                     title: BrnBubbleText(
-                      text: _messages[index].content,
+                      text: chatModel.messages[index].content,
                     ),
-                    subtitle:
-                        Text(_formatTimestamp(_messages[index].timestamp)),
+                    subtitle: Text(
+                        _formatTimestamp(chatModel.messages[index].timestamp)),
                   ),
                   // when message is from the bot, show the buttons
-                  if (_messages[index].author == 'bot' &&
-                      _messages[index].recommendTags.isNotEmpty)
+                  if (chatModel.messages[index].author == 'bot' &&
+                      chatModel.messages[index].recommendTags.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Builder(builder: (context) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 8),
                           child: BrnSelectTag(
-                              tags: _messages[index].recommendTags,
+                              tags: chatModel.messages[index].recommendTags,
                               isSingleSelect: true,
                               fixWidthMode: false,
                               spacing: 8.0,
@@ -242,7 +226,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                       tagRadius: 8.0),
                               onSelect: (selectedIndexes) {
                                 _sendMessage(
-                                    _messages[index]
+                                    chatModel.messages[index]
                                         .recommendTags[selectedIndexes[0]],
                                     context);
                               }),
