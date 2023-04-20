@@ -38,7 +38,7 @@ class ChatScreen extends StatelessWidget {
       var data = jsonDecode(utf8.decode(response.bodyBytes));
       var botMessage = data['choices'][0]['message']['content'];
       return botMessage;
-    } else if (response.statusCode == 429) {
+    } else if (response.statusCode == 429 && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Too many requests, please try again later.'),
@@ -63,6 +63,7 @@ class ChatScreen extends StatelessWidget {
         break;
       case ChatScene.answer:
         if (model.msgIndex > model.answerMsgs.length - 1) {
+          if (!ctx.mounted) return;
           botMessage = await getBotResponse(message, ctx);
           final botPrompt =
               '$botMessage,将上面这段文字给我提炼几个推荐关键字,格式要求如下: 1.xxx\n2.xxxx,\n3.xxxx';
@@ -78,7 +79,7 @@ class ChatScreen extends StatelessWidget {
 
         break;
       case ChatScene.learning:
-        if (model.msgIndex > model.learnMsgs.length - 1) {
+        if (model.msgIndex > model.learnMsgs.length - 1 && ctx.mounted) {
           botMessage = await getBotResponse(message, ctx);
           final botPrompt =
               '$botMessage,将上面这段文字给我提炼几个推荐关键字,格式要求如下: 1.xxx\n2.xxxx,\n3.xxxx';
@@ -230,7 +231,6 @@ class ChatScreen extends StatelessWidget {
           ),
           const Divider(),
           Builder(builder: (context) {
-            print("底部的SafeArea 也被重建了？");
             return SafeArea(
               child: Row(
                 children: [
