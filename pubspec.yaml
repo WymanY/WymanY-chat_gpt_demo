@@ -45,5 +45,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - lib/config/config.yaml
-    - assets/images/
+  # assets-generator-begin
+  # assets/img/*
+    - assets/img/avatar.png
+    - assets/img/bg.png
+    - assets/img/head_session.png
+    - assets/img/loading.webp
+  # assets-generator-end

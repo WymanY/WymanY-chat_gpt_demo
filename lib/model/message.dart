@@ -1,6 +1,4 @@
-/**
- * write a [Message] class that has author, timestamp, and content, nullable recommendTags fields
- */
+/// write a [Message] class that has author, timestamp, and content, nullable recommendTags fields
 class Message {
   final String author;
   final DateTime timestamp;

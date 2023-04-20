@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-import 'package:chat_gpt_demo/ui/chat_screen.dart';
+import 'package:chat_gpt_demo/Page/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:chat_gpt_demo/config/config.dart';
@@ -34,18 +34,13 @@ class _ChatAppState extends State<ChatApp> {
               ListTile(
                 title: const Text('答题'),
                 onTap: () {
-                  // Update the state of the app
-                  // Then close the drawer
-                  context.read<ChatModel>().setChatScene(ChatScene.Answer);
+                  context.read<ChatModel>().setChatScene(ChatScene.answer);
                   Navigator.pop(context);
                 },
               ),
               ListTile(
                 title: const Text('学情分析'),
                 onTap: () {
-                  // Update the state of the app
-                  // ...
-                  // Then close the drawer
                   context.read<ChatModel>().setChatScene(ChatScene.learning);
                   Navigator.pop(context);
                 },

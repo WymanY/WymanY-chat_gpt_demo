@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'message.dart';
 
-enum ChatScene { Answer, learning, breakIce }
+enum ChatScene { answer, learning, breakIce }
 
 class ChatModel extends ChangeNotifier {
   ChatScene _chatScene = ChatScene.breakIce;
@@ -85,7 +85,7 @@ D. 应付账款 15,000元，预付款 5,000元，存货 10,000元
   void setChatScene(ChatScene scene) {
     _chatScene = scene;
     switch (scene) {
-      case ChatScene.Answer:
+      case ChatScene.answer:
         messages = [
           Message.fromBotMsg(answerMsgs[0], ["A", "B", "C", "D"])
         ];

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:bruno/bruno.dart';
+import 'package:chat_gpt_demo/r.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +18,6 @@ class ChatScreen extends StatelessWidget {
   Future<String> getBotResponse(String message, BuildContext context) async {
     final apiToken = ConfigManager.instance.apiToken;
     debugPrint('apiToken: $apiToken');
-
     var url = Uri.parse('https://api.openai.com/v1/chat/completions');
     var response = await http.post(
       url,
@@ -61,7 +61,7 @@ class ChatScreen extends StatelessWidget {
     switch (chatScene) {
       case ChatScene.breakIce:
         break;
-      case ChatScene.Answer:
+      case ChatScene.answer:
         if (model.msgIndex > model.answerMsgs.length - 1) {
           botMessage = await getBotResponse(message, ctx);
           final botPrompt =
@@ -119,7 +119,7 @@ class ChatScreen extends StatelessWidget {
           height: double.infinity,
           decoration: const BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/images/bg.png'),
+              image: AssetImage(R.assetsImgBg),
               fit: BoxFit.cover,
             ),
           )),
@@ -137,7 +137,7 @@ class ChatScreen extends StatelessWidget {
                       child: SizedBox(
                         width: 40,
                         height: 40,
-                        child: Image.asset('assets/images/head_session.png'),
+                        child: Image.asset(R.assetsImgHeadSession),
                       ),
                       onTap: () {
                         Scaffold.of(context).openDrawer();
@@ -146,7 +146,7 @@ class ChatScreen extends StatelessWidget {
                   ),
                   Center(
                     child: CircleAvatar(
-                      child: Image.asset('assets/images/avatar.png'),
+                      child: Image.asset(R.assetsImgAvatar),
                     ),
                   ),
                 ],
@@ -266,7 +266,7 @@ class ChatScreen extends StatelessWidget {
           width: 40,
           height: 40,
           child: Image.asset(
-            'assets/images/loading.webp',
+            R.assetsImgLoading,
             fit: BoxFit.cover,
           ),
         ),
