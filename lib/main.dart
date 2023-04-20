@@ -14,15 +14,8 @@ void main() async {
   ], child: const ChatApp()));
 }
 
-//enum Chat Scene
-
-class ChatApp extends StatefulWidget {
+class ChatApp extends StatelessWidget {
   const ChatApp({super.key});
-  @override
-  State<ChatApp> createState() => _ChatAppState();
-}
-
-class _ChatAppState extends State<ChatApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
