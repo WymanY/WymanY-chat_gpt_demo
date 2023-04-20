@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'message.dart';
 
-enum ChatScene { Answer, Learning, breakIce }
+enum ChatScene { Answer, learning, breakIce }
 
 class ChatModel extends ChangeNotifier {
   ChatScene _chatScene = ChatScene.breakIce;
@@ -91,7 +91,7 @@ D. 应付账款 15,000元，预付款 5,000元，存货 10,000元
         ];
         msgIndex = 1;
         break;
-      case ChatScene.Learning:
+      case ChatScene.learning:
         messages = [Message.fromBotMsg(learnMsgs[0])];
         msgIndex = 1;
         break;
