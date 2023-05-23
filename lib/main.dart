@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
-import 'package:chat_gpt_demo/Page/chat_screen.dart';
+import 'package:chat_gpt_demo/pages/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:chat_gpt_demo/config/config.dart';
@@ -18,6 +18,8 @@ class ChatApp extends StatelessWidget {
   const ChatApp({super.key});
   @override
   Widget build(BuildContext context) {
+    final scene = context.read<ChatModel>().chatScene;
+    print(scene);
     return MaterialApp(
         home: Scaffold(
       drawer: Builder(builder: (context) {
