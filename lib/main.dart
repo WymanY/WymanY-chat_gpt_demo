@@ -18,8 +18,6 @@ class ChatApp extends StatelessWidget {
   const ChatApp({super.key});
   @override
   Widget build(BuildContext context) {
-    final scene = context.read<ChatModel>().chatScene;
-    print(scene);
     return MaterialApp(
         home: Scaffold(
       drawer: Builder(builder: (context) {
@@ -27,16 +25,14 @@ class ChatApp extends StatelessWidget {
           child: ListView(
             children: [
               ListTile(
-                title: const Text('答题'),
+                title: const Text('用户'),
                 onTap: () {
-                  context.read<ChatModel>().setChatScene(ChatScene.answer);
                   Navigator.pop(context);
                 },
               ),
               ListTile(
-                title: const Text('学情分析'),
+                title: const Text('Chat设置'),
                 onTap: () {
-                  context.read<ChatModel>().setChatScene(ChatScene.learning);
                   Navigator.pop(context);
                 },
               ),

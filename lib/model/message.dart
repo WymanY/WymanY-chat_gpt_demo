@@ -3,11 +3,13 @@ class Message {
   final String author;
   final DateTime timestamp;
   final String content;
-  List<String> recommendTags;
 
-  Message(this.author, this.timestamp, this.content,
-      [this.recommendTags = const []]);
+  Message(
+    this.author,
+    this.timestamp,
+    this.content,
+  );
 
   Message.fromBotMsg(String content, [List<String> recommendTags = const []])
-      : this('bot', DateTime.now(), content, recommendTags);
+      : this('bot', DateTime.now(), content);
 }

@@ -8,13 +8,13 @@ import 'package:provider/provider.dart';
 import '../config/config.dart';
 import '../model/chat_model.dart';
 import '../model/message.dart';
+import 'package:http/http.dart' as http;
 
 class ChatScreen extends StatelessWidget {
   final _controller = TextEditingController();
 
   ChatScreen({super.key});
 
-  get http => null;
   Future<String> getBotResponse(String message, BuildContext context) async {
     final apiToken = ConfigManager.instance.apiToken;
     debugPrint('apiToken: $apiToken');
@@ -56,45 +56,9 @@ class ChatScreen extends StatelessWidget {
     ChatModel model = ctx.read<ChatModel>();
     model.addMsg(Message('user', DateTime.now(), message));
     String botMessage = '';
-    final chatScene = model.chatScene;
-    var tags = ["A", "B", "C", "D"];
-    switch (chatScene) {
-      case ChatScene.breakIce:
-        break;
-      case ChatScene.answer:
-        if (model.msgIndex > model.answerMsgs.length - 1) {
-          if (!ctx.mounted) return;
-          botMessage = await getBotResponse(message, ctx);
-          final botPrompt =
-              '$botMessage,将上面这段文字给我提炼几个推荐关键字,格式要求如下: 1.xxx\n2.xxxx,\n3.xxxx';
-          final recommendTags = await getBotResponse(botPrompt, ctx);
-          tags = recommendTags.split('\n');
-        } else {
-          botMessage = model.answerMsgs[model.msgIndex];
-          model.msgIndexIncrement();
-          if (model.msgIndex == model.answerMsgs.length - 1) {
-            tags = [];
-          }
-        }
+    botMessage = await getBotResponse(message, ctx);
 
-        break;
-      case ChatScene.learning:
-        if (model.msgIndex > model.learnMsgs.length - 1 && ctx.mounted) {
-          botMessage = await getBotResponse(message, ctx);
-          final botPrompt =
-              '$botMessage,将上面这段文字给我提炼几个推荐关键字,格式要求如下: 1.xxx\n2.xxxx,\n3.xxxx';
-          final recommendTags = await getBotResponse(botPrompt, ctx);
-          tags = recommendTags.split('\n');
-        } else {
-          botMessage = model.learnMsgs[model.msgIndex];
-          model.msgIndexIncrement();
-          if (model.msgIndex == model.learnMsgs.length - 1) {
-            tags = [];
-          }
-        }
-        break;
-    }
-    model.addMsg(Message('bot', DateTime.now(), botMessage.trim(), tags));
+    model.addMsg(Message('bot', DateTime.now(), botMessage.trim()));
   }
 
   // convert the timestamp to a human readable format, eg."2 minutes ago"
@@ -115,15 +79,10 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage(R.assetsImgBg),
-              fit: BoxFit.cover,
-            ),
-          )),
+      const SizedBox(
+        width: double.infinity,
+        height: double.infinity,
+      ),
       Column(
         children: [
           SafeArea(
@@ -184,37 +143,6 @@ class ChatScreen extends StatelessWidget {
                             chatModel.messages[index].timestamp)),
                       ),
                       // when message is from the bot, show the buttons
-                      if (chatModel.messages[index].author == 'bot' &&
-                          chatModel.messages[index].recommendTags.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Builder(builder: (context) {
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: BrnSelectTag(
-                                  tags: chatModel.messages[index].recommendTags,
-                                  isSingleSelect: true,
-                                  fixWidthMode: false,
-                                  spacing: 8.0,
-                                  themeData:
-                                      //hex color 9c88ff
-                                      BrnTagConfig(
-                                          tagBackgroundColor:
-                                              const Color(0xFF9c88ff),
-                                          tagTextStyle: BrnTextStyle(
-                                              color: const Color(0xFFFFF100),
-                                              fontSize: 14.0,
-                                              fontWeight: FontWeight.w500),
-                                          tagRadius: 8.0),
-                                  onSelect: (selectedIndexes) {
-                                    _sendMessage(
-                                        chatModel.messages[index]
-                                            .recommendTags[selectedIndexes[0]],
-                                        context);
-                                  }),
-                            );
-                          }),
-                        )
                     ],
                   );
                 },
@@ -258,18 +186,6 @@ class ChatScreen extends StatelessWidget {
             );
           }),
         ],
-      ),
-      Positioned(
-        bottom: 60,
-        right: 40,
-        child: SizedBox(
-          width: 40,
-          height: 40,
-          child: Image.asset(
-            R.assetsImgLoading,
-            fit: BoxFit.cover,
-          ),
-        ),
       ),
     ]);
   }
