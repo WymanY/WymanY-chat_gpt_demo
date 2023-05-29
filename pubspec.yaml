@@ -28,15 +28,15 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  cupertino_icons: ^1.0.2
   bruno: ^3.3.0
+  connectivity_plus: ^4.0.1
+  cupertino_icons: ^1.0.2
   flutter:
     sdk: flutter
   http: ^0.13.5
+  provider: ^6.0.5
   shared_preferences: ^2.1.0
   yaml: ^3.1.1
-  provider: ^6.0.5
-
 
 dev_dependencies:
   flutter_lints: ^2.0.0
@@ -45,8 +45,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-  # assets-generator-begin
-  # assets/img/*
+    - lib/config/config.yaml
+    # assets-generator-begin
+    # assets/img/*
     - assets/img/avatar.png
     - assets/img/head_session.png
   # assets-generator-end

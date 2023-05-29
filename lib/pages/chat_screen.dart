@@ -18,6 +18,8 @@ class ChatScreen extends StatelessWidget {
   Future<String> getBotResponse(String message, BuildContext context) async {
     final apiToken = ConfigManager.instance.apiToken;
     debugPrint('apiToken: $apiToken');
+    // check network connection first,then send request
+    
     var url = Uri.parse('https://api.openai.com/v1/chat/completions');
     var response = await http.post(
       url,
